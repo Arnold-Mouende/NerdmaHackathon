@@ -103,7 +103,7 @@ def main():
     income_tax_expense = profit_before_tax * np.random.uniform(0.2, 0.3, n_samples)
     profit_for_the_year = profit_before_tax - income_tax_expense
 
-    # Simulating financial data for balance sheet
+# Simulating financial data for balance sheet
     total_assets = np.random.normal(1500, 300, n_samples)
     non_current_assets = total_assets * np.random.uniform(0.4, 0.6, n_samples)
     current_assets = total_assets - non_current_assets
@@ -111,7 +111,7 @@ def main():
     non_current_liabilities = total_assets * np.random.uniform(0.1, 0.3, n_samples)
     current_liabilities = total_assets - equity - non_current_liabilities
 
-    # Combine all features into a single array
+# Combine all features into a single array
     X = np.column_stack([
         revenue, cost_of_sales, gross_profit, other_income,
         operating_expenses, operating_profit, finance_income, finance_costs,
@@ -119,23 +119,23 @@ def main():
         current_assets, equity, non_current_liabilities, current_liabilities
     ])
 
-    # Target variable is profit for the year
+# Target variable is profit for the year
     y = profit_for_the_year
 
-    # Split the data into training and testing sets
+# Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Train the linear regression model
+# Train the linear regression model
     model = LinearRegression()
     model.fit(X_train, y_train)
 
-    # (2) Handling User Input and Prediction
+# (2) Handling User Input and Prediction
 
     # Define a JavaScript proxy to interact with HTML elements
     input_proxy = create_proxy(handle_user_input)
     document.getElementById("runOptimization").addEventListener("click", input_proxy)
 
-    # Function to handle user input
+# Function to handle user input
     async def handle_user_input(event):
         revenue = float(document.getElementById("revenue").value)
         cost_of_sales = float(document.getElementById("costOfSales").value)
@@ -156,7 +156,7 @@ def main():
         non_current_liabilities = float(document.getElementById("nonCurrentLiabilities").value)
         current_liabilities = float(document.getElementById("currentLiabilities").value)
 
-        # Combine input features into a single array for prediction
+# Combine input features into a single array for prediction
         user_input = np.array([[
             revenue, cost_of_sales, gross_profit, other_income,
             operating_expenses, operating_profit, finance_income, finance_costs,
@@ -164,19 +164,19 @@ def main():
             current_assets, equity, non_current_liabilities, current_liabilities
         ]])
 
-        # Predict profitability using the trained model
+# Predict profitability using the trained model
         predicted_profit = model.predict(user_input)
 
         # Update the result section with the predicted profit
         document.getElementById("results").innerHTML = f"<h3>Predicted Profit: ${predicted_profit[0]:.2f}</h3>"
 
-    # (3) Profit Maximization and Optimization
+# (3) Profit Maximization and Optimization
 
-    # Add event listener for generating product inputs
+# Add event listener for generating product inputs
     generate_inputs_proxy = create_proxy(generate_product_inputs)
     document.getElementById("generateInputs").addEventListener("click", generate_inputs_proxy)
 
-    # Function to dynamically generate input fields for each product
+# Function to dynamically generate input fields for each product
     def generate_product_inputs(event):
         num_products = int(document.getElementById("numProducts").value)
         product_inputs_div = document.getElementById("productInputs")
@@ -192,48 +192,48 @@ def main():
             </div>
             """
 
-    # Add event listener for running the optimization
+# Add event listener for running the optimization
     optimization_proxy = create_proxy(run_optimization)
     document.getElementById("runOptimization").addEventListener("click", optimization_proxy)
 
-    # Function to perform optimization
+# Function to perform optimization
     def run_optimization(event):
         num_products = int(document.getElementById("numProducts").value)
         fixed_costs = float(document.getElementById("fixedCosts").value)
         profit_target = float(document.getElementById("profitTarget").value)
 
-        # Initialize arrays for cost, price, and max production
+# Initialize arrays for cost, price, and max production
         c = np.zeros(num_products)
         A_ub = []
         b_ub = []
 
-        # Gather input data for each product
+# Gather input data for each product
         for i in range(num_products):
             price = float(document.getElementById(f"price_{i}").value)
             cost = float(document.getElementById(f"cost_{i}").value)
             max_production = float(document.getElementById(f"max_{i}").value)
 
-            # Objective function: Maximize profit
+# Objective function: Maximize profit
             c[i] = -(price - cost)  # Linear programming minimizes, so use negative
 
-            # Constraint: Production cannot exceed maximum capacity
+# Constraint: Production cannot exceed maximum capacity
             constraint = np.zeros(num_products)
             constraint[i] = 1
             A_ub.append(constraint)
             b_ub.append(max_production)
 
-        # Constraint: Total profit must exceed profit target
+# Constraint: Total profit must exceed profit target
         A_ub.append(-np.array(c))  # Use negative for 'greater than' constraint
         b_ub.append(-profit_target - fixed_costs)  # Adjust for fixed costs
 
-        # Convert to numpy arrays for scipy.optimize
+# Convert to numpy arrays for scipy.optimize
         A_ub = np.array(A_ub)
         b_ub = np.array(b_ub)
 
-        # Run linear programming optimization
+# Run linear programming optimization
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0, None)] * num_products)
 
-        # Output results
+# Output results
         if result.success:
             production_plan = result.x
             total_profit = -result.fun - fixed_costs
